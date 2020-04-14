@@ -1,0 +1,128 @@
+import * as mongo from "mongodb"
+const MongoClient = mongo.MongoClient;
+import setup from "../config/setupDB"
+import userFacade from '../src/facades/userFacadeWithDB';
+import { expect } from "chai";
+import { bryptAsync } from "../src/utils/bcrypt-async-helper"
+import { ApiError } from '../src/errors/apiError';
+
+let userCollection: mongo.Collection | null;
+let client: mongo.MongoClient;
+
+// function checkCollection(collection: mongo.Collection) {
+//   if (collection === null) {
+//     throw new Error("Collection was null")
+//   }
+// }
+
+describe("Verify the userFacade", () => {
+
+  before(async () => {
+    client = await setup();
+    process.env["DB_NAME"] = "semester_case_test"
+    const db = await userFacade.setDatabase(client)
+    if (!db) {
+      throw new Error("Database not intialized")
+    }
+    userCollection = db.collection("users");
+    if (userCollection === null) {
+      throw new Error("user collection not")
+    }
+  })
+  after(async () => {
+    await client.close();
+  })
+  beforeEach(async () => {
+    if (userCollection === null) {
+      throw new Error("userCollection not set")
+    }
+    await userCollection.deleteMany({})
+    const secretHashed = await bryptAsync("secret");
+    await userCollection.insertMany([
+      { name: "Peter Pan", username: "pp@b.dk", password: secretHashed, role: "user" },
+      { name: "Donald Duck", username: "dd@b.dk", password: secretHashed, role: "user" },
+      { name: "admin", username: "admin@a.dk", password: secretHashed, role: "admin" }
+    ])
+  })
+
+
+  it("Should Add the user Kurt", async () => {
+    const newUser = { name: "Jan Olsen", username: "jo@b.dk", password: "secret", role: "user" }
+    try {
+      const status = await userFacade.addUser(newUser);
+      expect(status).to.be.equal("User was added")
+
+      if (userCollection === null) {
+        throw new Error("Collection was null")
+      }
+      const jan = await userCollection.findOne({ username: "jo@b.dk" })
+      expect(jan.name).to.be.equal("Jan Olsen")
+    } catch (err) {
+    } finally { }
+  })
+
+  it("Should remove the user Peter", async () => {
+    try {
+      const status = await userFacade.deleteUser("pp@b.dk");
+      expect(status).to.be.equal("User was removed")
+      if (userCollection === null) {
+        throw new Error("Collection was null")
+      }
+      const peter = await userCollection.findOne({ username: "pp@b.dk" })
+      expect(peter).to.be.equal(null)
+    } catch (err) {
+      throw err;
+    } finally { }
+  })
+
+  it("Should get three users", async () => {
+    try {
+      const users = await userFacade.getAllUsers();
+      expect(users.length).to.be.equal(3);
+    } catch (err) {
+      throw err;
+    }
+  })
+
+  it("Should find Donald Duck", async () => {
+    try {
+      const user = await userFacade.getUser("dd@b.dk");
+      expect(user.name).to.be.equal("Donald Duck")
+    } catch (err) {
+      throw err;
+    } finally { }
+  })
+
+  it("Should not find xxx.@.b.dk", async () => {
+    try {
+      const donald = await userFacade.getUser("xxx.@.b.dk");
+      throw new Error("Should not get here")
+    } catch (err) {
+      expect(err instanceof ApiError).to.be.equal(true)
+      expect(err.message).to.be.equal("User not found")
+    }
+    finally { }
+  })
+
+  it("Should correctly validate Peter Pan's credential,s", async () => {
+    try {
+      const passwordStatus = await userFacade.checkUser("pp@b.dk", "secret");
+      expect(passwordStatus).to.be.true;
+    } catch (err) { }
+  })
+  it("Should NOT correctly validate Peter Pan's check", async () => {
+    try {
+      const passwordStatus = await userFacade.checkUser("pp@b.dk", "xxxx");
+    } catch (err) {
+      expect(err).to.be.false
+    }
+  })
+  it("Should NOT correctly validate non-existing users check", async () => {
+    try {
+      const passwordStatus = await userFacade.checkUser("pxxxx@b.dk", "secret");
+    } catch (err) {
+      expect(err).to.be.false
+    }
+  })
+
+})
