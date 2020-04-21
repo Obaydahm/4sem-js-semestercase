@@ -29,9 +29,9 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
     await positionsCollection.createIndex({ "lastUpdated": 1 }, { expireAfterSeconds: 30 })
     await positionsCollection.createIndex({ location: "2dsphere" })
     const positions = [
-      positionCreator(12.48, 55.77, team1.username, team1.name, true),
-      positionCreator(12.49, 55.77, team2.username, team2.name, true),
-      positionCreator(12.50, 55.77, team3.username, team3.name, true),
+      positionCreator(12.541859149932861, 55.704972756583516, team1.username, team1.name, true),
+      positionCreator(12.529220581054686, 55.70344328869088, team2.username, team2.name, true),
+      positionCreator(12.53291130065918, 55.71226864306213, team3.username, team3.name, true),
       positionCreator(12.51, 55.77, "xxx", "yyy", false),
     ]
     const locations = await positionsCollection.insertMany(positions)

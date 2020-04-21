@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "test": "mocha --exit -r ts-node/register test/**/*.ts",
+    "test": "mocha --exit -r ts-node/register test/**/*.ts || true",
     "testDebug": "mocha --exit -r ts-node/register --inspect=5858 test/**/*.ts",
     "dev": "node -r ts-node/register ./src/app.ts",
     "dev:watch": "nodemon",
@@ -40,6 +40,8 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-winston": "^4.0.3",
+    "geojson": "^0.5.0",
+    "geojson-utils": "^1.1.0",
     "mongodb": "^3.4.1",
     "tsscmp": "^1.0.6",
     "typescript": "^3.7.4",

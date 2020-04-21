@@ -1,6 +1,5 @@
 import mongodb = require("mongodb");
 const ObjectID = mongodb.ObjectID;
-import { Point } from "geojson"
 
 export default interface IPosition {
     lastUpdated: Date,
