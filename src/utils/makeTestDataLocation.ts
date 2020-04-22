@@ -21,8 +21,11 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
     const team1 = { name: "Team1", username: "t1", password: secretHashed, role: "team" }
     const team2 = { name: "Team2", username: "t2", password: secretHashed, role: "team" }
     const team3 = { name: "Team3", username: "t3", password: secretHashed, role: "team" }
+    const team4 = { name: "Team4", username: "t4", password: secretHashed, role: "team" }
+    const team5 = { name: "Team5", username: "t5", password: secretHashed, role: "team" }
+    const team6 = { name: "Team6", username: "t6", password: secretHashed, role: "team" }
 
-    const status = await usersCollection.insertMany([team1, team2, team3])
+    const status = await usersCollection.insertMany([team1, team2, team3, team4, team5, team6])
 
     const positionsCollection = db.collection(POSITION_COLLECTION_NAME)
     await positionsCollection.deleteMany({})
@@ -32,6 +35,9 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
       positionCreator(12.541859149932861, 55.704972756583516, team1.username, team1.name, true),
       positionCreator(12.529220581054686, 55.70344328869088, team2.username, team2.name, true),
       positionCreator(12.53291130065918, 55.71226864306213, team3.username, team3.name, true),
+      positionCreator(12.556514739990233, 55.77956583130074, team4.username, team4.name, true),
+      positionCreator(12.572135925292969, 55.78752945489356, team5.username, team5.name, true),
+      positionCreator(12.565526962280273, 55.777683282428946, team6.username, team6.name, true),
       positionCreator(12.51, 55.77, "xxx", "yyy", false),
     ]
     const locations = await positionsCollection.insertMany(positions)
